@@ -1,8 +1,15 @@
 <template>
-    <div id="content" class="containers" ref="content">
-        <div class="canvas" id="canvas" ref="canvas"></div>
-        <div id="js-properties-panel" class="panel"></div>
+    <div>
+        <div>
+            <button @click="saveSVG()">saveSVG</button>
+            <button @click="saveDiagram()">saveDiagram</button>
+        </div>
+        <div id="content" class="containers" ref="content">
+            <div class="canvas" id="canvas" ref="canvas"></div>
+            <div id="js-properties-panel" class="panel"></div>
+        </div>
     </div>
+
 </template>
 
 <link rel="stylesheet" href="bpmn-js/dist/assets/diagram-js.css" />
@@ -12,10 +19,19 @@
     // @ is an alias to /src
     // 引入相关的依赖
     import BpmnModeler from 'bpmn-js/lib/Modeler'
+    // 右边的工具栏
     import propertiesPanelModule from 'bpmn-js-properties-panel';
+    // 左边工具栏以及节点
     import propertiesProviderModule from 'bpmn-js-properties-panel/lib/provider/camunda';
+    // camunda模块描述符
     import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json';
-    import customTranslate from '../bpmn/customTranslate';
+    // mini地图
+    import miniMapModule from 'diagram-js-minimap';
+    import customTranslate from '@/bpmn/customTranslate';
+
+    // import {
+    //     newDiagram
+    // } from '@/assets/bpmn/bpmn'
 
     export default {
         data() {
@@ -99,6 +115,34 @@
                         //
                     }
                 })
+            },
+            // 保存svg
+            saveSVG() {
+                this.bpmnModeler.saveSVG((err, svg) => {
+                    if(err){
+                        console.error("没有获得svg!")
+                    } else {
+                        console.log(svg)
+                    }
+                    // setEncoded(downloadSvgLink, 'diagram.svg', err ? null : svg);
+                });
+                console.log("保存svg图片")
+            },
+            // 保存.bpmn
+            saveDiagram() {
+                this.bpmnModeler.saveXML((err, xml) => {
+                    if(err){
+                        console.error("没有获得xml!")
+                    } else {
+
+                        let encodedData = encodeURIComponent(xml);
+                        window.location.href = 'data:application/bpmn20-xml;charset=UTF-8,' + encodedData
+
+                        console.log(xml)
+                    }
+                    // setEncoded(downloadSvgLink, 'diagram.svg', err ? null : svg);
+                });
+                console.log("保存svg图片")
             }
         },
         mounted() {
@@ -110,10 +154,29 @@
             this.container = this.$refs.content
             // 获取到属性ref为“canvas”的dom节点
             this.canvas = this.$refs.canvas
-
             // 建模
             this.bpmnModeler = new BpmnModeler({
                 container: '#canvas',
+                // 文本渲染
+                textRenderer: {
+                    defaultStyle: {
+                        fontFamily: '"Nothing You Could Do"',
+                        // fontWeight: 'bold',
+                        // fontSize: 12,
+                        // lineHeight: 16
+                    },
+                    // externalStyle: {
+                    //     fontSize: 12,
+                    //     lineHeight: 16
+                    // }
+                },
+                // bpmn渲染
+                // bpmnRenderer: {
+                //     // 默认填充颜色
+                //     defaultFillColor: '#333',
+                //     // 默认线条颜色
+                //     defaultStrokeColor: '#fff'
+                // },
                 //添加控制板
                 propertiesPanel: {
                     parent: '#js-properties-panel'
@@ -124,10 +187,13 @@
                     propertiesProviderModule,
                     // 右边的工具栏
                     propertiesPanelModule,
+                    // mini地图
+                    miniMapModule,
                     // 自定义翻译模块
-                    customTranslateModule
-                ],
+                    customTranslateModule,
+                ]                ,
                 moddleExtensions: {
+                    // needed if you'd like to maintain camunda:XXX properties in the properties panel
                     camunda: camundaModdleDescriptor
                 }
             });
@@ -150,7 +216,7 @@
             // 根据元素监听事件
             let endEventNode = this.canvas.querySelector('g');
             endEventNode.addEventListener('click', (mouseEvent) => {
-                alert('clicked this canvas!' + mouseEvent)
+                console.log('clicked this canvas!' + mouseEvent)
             })
         }
     }
