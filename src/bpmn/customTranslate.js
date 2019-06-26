@@ -1,8 +1,6 @@
 import zh_cn from './zh_cn'
 
 export default function customTranslate(template, replacements) {
-  debugger
-  console.log("template<<>>" + template)
   replacements = replacements || {};
 
   // Translate

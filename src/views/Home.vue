@@ -42,12 +42,12 @@
                     '      <bpmn:incoming>SequenceFlow_00ho26x</bpmn:incoming>\n' +
                     '      <bpmn:outgoing>SequenceFlow_18df8vb</bpmn:outgoing>\n' +
                     '    </bpmn:task>\n' +
-                    '    <bpmn:endEvent id="EndEvent_1c0ed2n" name="end">\n' +
+                    '    <bpmn:endEvent id="EndEvent_id" name="end">\n' +
                     '      <bpmn:incoming>SequenceFlow_18df8vb</bpmn:incoming>\n' +
                     '    </bpmn:endEvent>\n' +
                     '    <bpmn:sequenceFlow id="SequenceFlow_0nrfbee" sourceRef="StartEvent_1" targetRef="Task_0ho18x0" />\n' +
                     '    <bpmn:sequenceFlow id="SequenceFlow_00ho26x" sourceRef="Task_0ho18x0" targetRef="Task_1ymuvem" />\n' +
-                    '    <bpmn:sequenceFlow id="SequenceFlow_18df8vb" sourceRef="Task_1ymuvem" targetRef="EndEvent_1c0ed2n" />\n' +
+                    '    <bpmn:sequenceFlow id="SequenceFlow_18df8vb" sourceRef="Task_1ymuvem" targetRef="EndEvent_id" />\n' +
                     '  </bpmn:process>\n' +
                     '  <bpmndi:BPMNDiagram id="BPMNDiagram_1">\n' +
                     '    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">\n' +
@@ -63,7 +63,7 @@
                     '      <bpmndi:BPMNShape id="Task_1ymuvem_di" bpmnElement="Task_1ymuvem">\n' +
                     '        <dc:Bounds x="712" y="391" width="100" height="80" />\n' +
                     '      </bpmndi:BPMNShape>\n' +
-                    '      <bpmndi:BPMNShape id="EndEvent_1c0ed2n_di" bpmnElement="EndEvent_1c0ed2n">\n' +
+                    '      <bpmndi:BPMNShape id="EndEvent_id_di" bpmnElement="EndEvent_id">\n' +
                     '        <dc:Bounds x="1056" y="568" width="36" height="36" />\n' +
                     '        <bpmndi:BPMNLabel>\n' +
                     '          <dc:Bounds x="1065" y="611" width="19" height="14" />\n' +
@@ -102,7 +102,6 @@
             }
         },
         mounted() {
-            debugger
             var customTranslateModule = {
                 translate: [ 'value', customTranslate ]
             };
@@ -112,7 +111,7 @@
             // 获取到属性ref为“canvas”的dom节点
             this.canvas = this.$refs.canvas
 
-            // 建模，官方文档这里讲的很详细
+            // 建模
             this.bpmnModeler = new BpmnModeler({
                 container: '#canvas',
                 //添加控制板
@@ -125,15 +124,34 @@
                     propertiesProviderModule,
                     // 右边的工具栏
                     propertiesPanelModule,
-                    // 中文翻译模块
+                    // 自定义翻译模块
                     customTranslateModule
                 ],
                 moddleExtensions: {
                     camunda: camundaModdleDescriptor
                 }
             });
+            // 为画布的每个内容添加单击双击事件
+            let eventBus = this.bpmnModeler.get('eventBus')
+            // select the end event
+            const events = [
+                'element.click',
+                'element.dbclick'
+            ]
+            events.forEach(((event) => {
+                eventBus.on(event, function(e) {
+                    console.log(event + ' on ' + e.element.id);
+                })
+            }))
+
+            // 创建一个新的模型
             this.createNewDiagram(this.bpmnModeler);
-            // this.createNewDiagram();
+
+            // 根据元素监听事件
+            let endEventNode = this.canvas.querySelector('g');
+            endEventNode.addEventListener('click', (mouseEvent) => {
+                alert('clicked this canvas!' + mouseEvent)
+            })
         }
     }
 </script>
