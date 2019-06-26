@@ -9,6 +9,9 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "bpmn-js": "^3.4.3",
+    "bpmn-js-properties-panel": "^0.31.0",
+    "camunda-bpmn-moddle": "^3.2.0",
     "core-js": "^2.6.5",
     "register-service-worker": "^1.6.2",
     "vue": "^2.6.10",
